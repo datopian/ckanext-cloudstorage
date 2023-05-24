@@ -23,6 +23,21 @@ def initdb():
 
 
 @cloudstorage.command()
+@click.argument(u'domains')
+def fix_cors(domains):
+    """Update CORS rules where possible."""
+    utils.fix_cors(domains)
+
+
+@cloudstorage.command()
+@click.argument(u'path_to_storage')
+@click.argument(u'resource_id', required=False, default=None)
+def migrate(path_to_storage, resource_id):
+    """Upload local storage to the remote."""
+    utils.migrate(path_to_storage, resource_id)
+
+
+@cloudstorage.command()
 @click.option(
     "-o",
     "--output",
