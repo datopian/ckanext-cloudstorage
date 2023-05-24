@@ -11,6 +11,7 @@ USAGE = """ckanext-cloudstorage
 Commands:
     - fix-cors                  Update CORS rules where possible.
     - migrate                   Upload local storage to the remote.
+    - migrate-file              Upload local file to the remote for a given resource.
     - initdb                    Reinitalize database tables.
     - list-unlinked-uploads     Lists uploads in the storage container that do not match to any resources.
     - remove-unlinked-uploads   Permanently deletes uploads from the storage container that do not match to any resources.
@@ -20,6 +21,7 @@ Commands:
 Usage:
     cloudstorage fix-cors <domains>... [--c=<config>]
     cloudstorage migrate <path_to_storage> [<resource_id>] [--c=<config>]
+    cloudstorage migrate-file <path_to_file> <resource_id> [--c=<config>]
     cloudstorage initdb [--c=<config>]
     cloudstorage list-unlinked-uploads [--o=<output>] [--c=<config>]
     cloudstorage remove-unlinked-uploads [--c=<config>]
@@ -49,6 +51,8 @@ class PasterCommand(CkanCommand):
             _fix_cors(args)
         elif args['migrate']:
             _migrate(args)
+        elif args['migrate-file']:
+            _migrate_file(args)
         elif args['initdb']:
             _initdb()
         elif args['list-unlinked-uploads']:
@@ -64,6 +68,11 @@ class PasterCommand(CkanCommand):
 def _migrate(args):
     # type: (list|None) -> None
     utils.migrate(args['<path_to_storage>'], args['<resource_id>'])
+
+
+def _migrate_file(args):
+    # type: (list|None) -> None
+    utils.migrate_file(args['<path_to_file>'], args['<resource_id>'])
 
 
 def _fix_cors(args):

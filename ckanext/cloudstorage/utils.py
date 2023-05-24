@@ -110,6 +110,45 @@ def migrate(path, single_id=None):
         print(u'ID of all failed uploads are saved to `{0}`'.format(log_file.name))
 
 
+def migrate_file(file_path, resource_id):
+    if not os.path.isfile(file_path):
+        print('The file path is not a file.')
+        return
+
+    lc = LocalCKAN()
+    failed = []
+
+    try:
+        resource = lc.action.resource_show(id=resource_id)
+    except NotFound:
+        print(u'Resource not found')
+        return
+
+    if resource['url_type'] != 'upload':
+        print(u'`url_type` is not `upload`.')
+        return
+
+    with open(file_path, 'rb') as fin:
+        resource['upload'] = FakeFileStorage(
+            fin,
+            resource['url'].split('/')[-1]
+        )
+        try:
+            uploader = ResourceCloudStorage(resource)
+            uploader.upload(resource['id'])
+            head, tail = os.path.split(file_path)
+            print(u'Uploaded file {0} successfully for resource {1}.'.format(
+                    tail, resource_id))
+        except Exception as e:
+            failed.append(resource_id)
+            print(u'Error of type {0} during upload: {1}'.format(type(e), e))
+
+    if failed:
+        log_file = tempfile.NamedTemporaryFile(delete=False)
+        log_file.file.writelines(failed)
+        print(u'ID of all failed uploads are saved to `{0}`'.format(log_file.name))
+
+
 def fix_cors(domains):
     cs = CloudStorage()
 
